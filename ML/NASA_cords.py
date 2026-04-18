@@ -9,7 +9,7 @@ import re
 import time
 
 # 🔑 Replace with your Gemini API key
-GEMINI_API_KEY = "AQ.Ab8RN6IyKWQKQkB0c3e0cj7et-nTTfAfWmSaJeSdWgkM9MDvqQ"
+GEMINI_API_KEY = "AQ.Ab8RN6K5eKwbONu4z7NmuziiHIGXPGljDiycwOfpPImVHjI_wA"
 import traceback
 
 genai.configure(api_key=GEMINI_API_KEY)
@@ -172,16 +172,17 @@ Analyze for {crop}.
 
 
 # ================== FIREBASE ==================
-def store_to_firebase(env_data, ai_data):
+def store_to_firebase(env_data, ai_data, email):
     doc_ref = db.collection("hackathon") \
         .document("PCCE2026") \
         .collection("NASAreport") \
-        .document()
+        .document(email+"_NASAreport")
 
     doc_ref.set({
         "timestamp": datetime.utcnow(),
         "environment": env_data,
-        "ai_output": ai_data
+        "ai_output": ai_data,
+        "email": email
     })
 
     print(f"✅ Stored with ID: {doc_ref.id}")
@@ -214,7 +215,8 @@ if __name__ == "__main__":
         exit()
 
     try:
-        store_to_firebase(nasa_data, ai_data)
+        email = "ved@gmail.com"
+        store_to_firebase(nasa_data, ai_data,email)
 
     except Exception as e:
         print("\n❌ FIREBASE FAILED")

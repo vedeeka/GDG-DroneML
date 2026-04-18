@@ -39,8 +39,8 @@ def save_to_firebase(image_url):
         db.collection("hackathon")\
           .document("PCCE2026")\
           .collection("videos")\
-          .document("anonymous_user_images")\
-          .update({
+          .document("ved@gmail.com_images")\
+          .set({
               "url": image_url,
               "timestamp": time.time()
           })

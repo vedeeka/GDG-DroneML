@@ -84,8 +84,8 @@ while True:
         db.collection("hackathon")\
           .document("PCCE2026")\
           .collection("videos")\
-          .document("anonymous_user_videos")\
-          .update({
+          .document("ved@gmail.com_videos")\
+          .set({
               "url": video_url,
               "timestamp": time.time()
           })

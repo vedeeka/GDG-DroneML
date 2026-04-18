@@ -482,7 +482,7 @@ class PlantDiseasePredictor:
                 .collection("prediction") \
                 .document(user_id+"_disease")   # 👈 important
 
-            doc_ref.update(prediction_data)
+            doc_ref.set(prediction_data)
             logger.info(f"Prediction data saved to Firestore at {doc_ref.path}")
             return doc_ref.id # Return the unique document ID
         except Exception as e:
@@ -540,7 +540,7 @@ def predict_from_url():
         return make_response(jsonify({"error": "Missing 'image_url' in JSON body."}), 400)
     
     image_url = data['image_url']
-    user_id = data.get('user_id', 'anonymous_user') # Default to 'anonymous_user' if not provided
+    user_id = data.get('user_id', 'ved@gmail.com') # Default to 'anonymous_user' if not provided
     
     logger.info(f"Received prediction request for user '{user_id}', image URL: {image_url}")
 
