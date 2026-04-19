@@ -1,6 +1,12 @@
+import sys
 import os
+from PyQt5.QtWidgets import (
+    QApplication, QWidget, QLabel, QLineEdit,
+    QPushButton, QVBoxLayout, QMessageBox
+)
 
-ENV_FILE = ".env"
+ENV_FILE = os.path.join(os.path.dirname(__file__), ".env")
+
 
 def read_env():
     env_data = {}
@@ -9,33 +15,58 @@ def read_env():
             for line in f:
                 if "=" in line:
                     key, value = line.strip().split("=", 1)
-                    env_data[key] = value
+                    env_data[key] = value.strip('"')
     return env_data
+
 
 def write_env(env_data):
     with open(ENV_FILE, "w") as f:
         for key, value in env_data.items():
-            f.write(f"{key}={value}\n")
+            f.write(f'{key}="{value}"\n')
 
-def update_env():
-    env_data = read_env()
 
-    print("Enter values (leave blank to keep existing):\n")
+class EnvEditor(QWidget):
+    def __init__(self):
+        super().__init__()
 
-    # Define fields you want
-    fields = ["email"]  # Add more fields as needed
+        self.setWindowTitle("ENV Editor")
+        self.setGeometry(100, 100, 300, 150)
 
-    for field in fields:
-        current_value = env_data.get(field, "")
-        user_input = input(f"{field} [{current_value}]: ")
+        self.env_data = read_env()
 
-        if user_input.strip() != "":
-            env_data[field] = user_input  # update
+        layout = QVBoxLayout()
+
+        # Label
+        self.label = QLabel("Email:")
+        layout.addWidget(self.label)
+
+        # Input field
+        self.input = QLineEdit()
+        self.input.setText(self.env_data.get("email", ""))
+        layout.addWidget(self.input)
+
+        # Save button
+        self.button = QPushButton("Save")
+        self.button.clicked.connect(self.save_env)
+        layout.addWidget(self.button)
+
+        self.setLayout(layout)
+
+    def save_env(self):
+        email = self.input.text().strip()
+
+        if email:
+            self.env_data["email"] = email
         else:
-            env_data[field] = current_value  # keep old
+            self.env_data["email"] = self.env_data.get("email", "")
 
-    write_env(env_data)
-    print("\n✅ .env file updated successfully!")
+        write_env(self.env_data)
+
+        QMessageBox.information(self, "Success", ".env updated!")
+
 
 if __name__ == "__main__":
-    update_env()
+    app = QApplication(sys.argv)
+    window = EnvEditor()
+    window.show()
+    sys.exit(app.exec_())
