@@ -16,7 +16,9 @@ cloudinary.config(
     api_key="531163372165284",
     api_secret="_WSbNtv9J_O0CMtytnIHxeIQL4s"
 )
+from dotenv import load_dotenv
 
+load_dotenv()
 
 cred = credentials.Certificate("../firebase/serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
@@ -81,7 +83,8 @@ while True:
         print("Uploaded:", video_url)
         os.remove(mp4_file)  # Cleanup MP4 after upload
         os.remove(avi_file)  # Cleanup AVI after upload
-        em=os.getenv("email")
+        em=os.environ.get("email")
+        print(f"📧 Using email: {em}" )
         # ✅ SAVE TO FIREBASE
         db.collection("hackathon")\
           .document("PCCE2026")\

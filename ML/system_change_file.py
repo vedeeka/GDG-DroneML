@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QPushButton, QVBoxLayout, QMessageBox
 )
 
-ENV_FILE = os.path.join(os.path.dirname(__file__), ".env")
+ENV_FILE = os.path.join(os.path.dirname(__file__), "../.env")
 
 
 def read_env():

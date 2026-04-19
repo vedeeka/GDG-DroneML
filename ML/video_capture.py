@@ -31,7 +31,9 @@ cloudinary.config(
 cred = credentials.Certificate("../firebase/serviceAccountKey.json")  # your firebase json
 firebase_admin.initialize_app(cred)
 db = firestore.client()
-em=os.getenv("email")
+from dotenv import load_dotenv
+load_dotenv()
+em=os.environ.get("email")
 def save_to_firebase(image_url):
     try:
         print("💾 Saving URL to Firebase...")

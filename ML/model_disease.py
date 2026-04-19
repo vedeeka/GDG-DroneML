@@ -6,6 +6,8 @@ from torch.utils.data import DataLoader, random_split
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import copy
 import time
 import warnings

@@ -170,7 +170,9 @@ Analyze for {crop}.
 
     return None
 
-em=os.getenv("email")
+from dotenv import load_dotenv
+load_dotenv()
+em=os.environ.get("email")
 # ================== FIREBASE ==================
 def store_to_firebase(env_data, ai_data, email):
     doc_ref = db.collection("hackathon") \
