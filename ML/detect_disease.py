@@ -7,6 +7,7 @@ import torchvision.transforms as transforms
 from PIL import Image
 import os
 import sys
+
 import glob
 import logging
 import json # Import json for parsing Gemini's output
@@ -540,7 +541,8 @@ def predict_from_url():
         return make_response(jsonify({"error": "Missing 'image_url' in JSON body."}), 400)
     
     image_url = data['image_url']
-    user_id = data.get('user_id', 'ved@gmail.com') # Default to 'anonymous_user' if not provided
+    em=os.getenv("email")
+    user_id = data.get('user_id', em) # Default to 'anonymous_user' if not provided
     
     logger.info(f"Received prediction request for user '{user_id}', image URL: {image_url}")
 

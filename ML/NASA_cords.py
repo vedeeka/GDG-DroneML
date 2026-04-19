@@ -170,13 +170,13 @@ Analyze for {crop}.
 
     return None
 
-
+em=os.getenv("email")
 # ================== FIREBASE ==================
 def store_to_firebase(env_data, ai_data, email):
     doc_ref = db.collection("hackathon") \
         .document("PCCE2026") \
         .collection("NASAreport") \
-        .document(email+"_NASAreport")
+        .document(f"{em}_NASAreport")
 
     doc_ref.set({
         "timestamp": datetime.utcnow(),
@@ -215,7 +215,7 @@ if __name__ == "__main__":
         exit()
 
     try:
-        email = "ved@gmail.com"
+        email = em
         store_to_firebase(nasa_data, ai_data,email)
 
     except Exception as e:

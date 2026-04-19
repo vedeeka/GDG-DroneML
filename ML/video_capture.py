@@ -31,7 +31,7 @@ cloudinary.config(
 cred = credentials.Certificate("../firebase/serviceAccountKey.json")  # your firebase json
 firebase_admin.initialize_app(cred)
 db = firestore.client()
-
+em=os.getenv("email")
 def save_to_firebase(image_url):
     try:
         print("💾 Saving URL to Firebase...")
@@ -39,7 +39,9 @@ def save_to_firebase(image_url):
         db.collection("hackathon")\
           .document("PCCE2026")\
           .collection("videos")\
-          .document("ved@gmail.com_images")\
+          .document(f"{em}_images")\
+          .collection("images")\
+          .document(str(uuid.uuid4()))\
           .set({
               "url": image_url,
               "timestamp": time.time()

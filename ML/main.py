@@ -21,12 +21,12 @@ def process_user_doc(doc):
 
 
     email = data.get("email", "").strip().lower()
-
-    if email != "ved@gmail.com":
+    em=os.getenv("email")
+    if email != em:
         print(f"❌ Skipping user: '{email}'")
         return
 
-    if email != "ved@gmail.com":
+    if email != em:
         print(f"❌ Skipping user: {email}")
         return
 

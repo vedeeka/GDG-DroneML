@@ -79,12 +79,14 @@ while True:
 
         video_url = response["secure_url"]
         print("Uploaded:", video_url)
-
+        os.remove(mp4_file)  # Cleanup MP4 after upload
+        os.remove(avi_file)  # Cleanup AVI after upload
+        em=os.getenv("email")
         # ✅ SAVE TO FIREBASE
         db.collection("hackathon")\
           .document("PCCE2026")\
           .collection("videos")\
-          .document("ved@gmail.com_videos")\
+          .document(f"{em}_videos")\
           .set({
               "url": video_url,
               "timestamp": time.time()
