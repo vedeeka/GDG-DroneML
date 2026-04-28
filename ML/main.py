@@ -5,13 +5,14 @@ import json
 import time
 import traceback
 from NASA_cords import fetch_nasa, process_nasa,get_nasa_data, analyze_with_gemini, store_to_firebase
-
-
+from dotenv import load_dotenv
+import os
 
 cred = credentials.Certificate("/Users/vedeekaparab/Desktop/GDG-DroneML/firebase/serviceAccountKey.json")
 
 db = firestore.client()
-
+load_dotenv()
+em = os.environ.get("email")
 
 def process_user_doc(doc):
     data = doc.to_dict()
@@ -21,7 +22,7 @@ def process_user_doc(doc):
 
 
     email = data.get("email", "").strip().lower()
-    em=os.getenv("email")
+
     if email != em:
         print(f"❌ Skipping user: '{email}'")
         return
@@ -32,22 +33,14 @@ def process_user_doc(doc):
 
     print(f"\n📍 Processing user: {data.get('email')}")
     # ✅ get coordinates from DB
-    location = data.get("farmDetails", {}).get("location")
-
-    if not location:
-        print("❌ No location field")
-        return
+    lat = data.get("farmDetails", {}).get("latitude")
+    lon = data.get("farmDetails", {}).get("longitude")
 
     try:
-        lat_str, lon_str = location.split(",")
-
-        lat = float(lat_str.strip())
-        lon = float(lon_str.strip())
-
-        print(f"📍 Coordinates: {lat}, {lon}")
-
+        lat = float(lat)
+        lon = float(lon)
     except Exception as e:
-        print("❌ Invalid location format:", location)
+        print("❌ Invalid coordinates:", lat, lon)
         return
     
 

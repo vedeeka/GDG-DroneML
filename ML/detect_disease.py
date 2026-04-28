@@ -300,7 +300,7 @@ class GeminiAssistant:
             raise ValueError("Gemini API Key is not provided.")
         genai.configure(api_key=api_key)
         
-        self.model = genai.GenerativeModel("gemini-2.5-flash")
+        self.model = genai.GenerativeModel("gemini-3-flash-preview")
         logger.info("Gemini model initialized.")
 
     def get_disease_solution(self, disease_name: str) -> Dict[str, str]:
@@ -325,7 +325,7 @@ class GeminiAssistant:
             "- 'symptoms': A list of common symptoms.\n"
             "- 'causes': Common causes or conditions favoring the disease.\n"
             "- 'prevention': Steps to prevent the disease.\n"
-            "- 'treatment': Methods to treat the disease once it's present.\n"
+            "- 'treatment': Methods to treat the disease once it's present give in categories which are culture control,fungicides,post-harvest.\n"
             "- 'further_info': Any other relevant information, like environmental factors or specific host plants.\n"
             "Ensure the response is practical and actionable for a plant owner/farmer."
         )

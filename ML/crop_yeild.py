@@ -5,13 +5,14 @@ import google.generativeai as genai
 import os
 import time
 import json
-import re
 from datetime import datetime
 
-# ------------------ SETUP ------------------
+# Any NASA update → triggers simulation
 
 cred = credentials.Certificate("../firebase/serviceAccountKey.json")
-firebase_admin.initialize_app(cred)
+# Prevent re-initialization if script restarts in some environments
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 load_dotenv()
@@ -20,8 +21,10 @@ em = os.environ.get("email")
 if not em:
     raise ValueError("❌ Email not found in .env")
 
+print(f"📧 System Active for: {em}")
+
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-2.5-flash")
+model = genai.GenerativeModel("gemini-3-flash-preview")
 
 # ------------------ HELPER: JSON CLEANER ------------------
 
@@ -36,64 +39,86 @@ def make_json_serializable(data):
     else:
         return data
 
-# ------------------ ROI ENGINE ------------------
+# ------------------ CORE AI ENGINE ------------------
 
-def run_financial_optimizer(nasa_data, farm_profile):
+def run_financial_and_crop_optimizer(nasa_data, farm_profile):
     """
-    Core feature: ROI + financial decision engine
+    Core feature: Analyzes both the financial ROI and the physical crop/weather impact
     """
 
-    # 🔥 CLEAN DATA BEFORE JSON
     nasa_data_clean = make_json_serializable(nasa_data)
     farm_profile_clean = make_json_serializable(farm_profile)
 
     prompt = f"""
-    You are a Financial Agricultural Consultant. 
-    Analyze the NEW NASA Weather Data against the Farm Profile to produce a Cost-vs-Yield ROI Analysis.
+    You are an Expert Agricultural & Financial AI.
+    Analyze the NEW NASA Weather Data against the Farm Profile.
     
     NASA DATA (Current Environment): {json.dumps(nasa_data_clean)}
-    FARM PROFILE (Current Crop/Soil): {json.dumps(farm_profile_clean)}
+    FARM PROFILE (Current Target Crop/Soil): {json.dumps(farm_profile_clean)}
 
-    TASK:
-    1. Calculate 'Yield Loss Risk' based on the new weather (0-100%).
-    2. Estimate 'Cost of Maintenance' (Water/Fertilizer) required to survive this weather.
-    3. Calculate ROI: (Expected Market Value - Input Costs) / Input Costs.
-    4. Provide a 'Pivot vs. Persevere' recommendation.
+    OUTPUT ONLY STRICT JSON EXACTLY MATCHING THE FOLLOWING SCHEMA.
+    Pay strict attention to Data Types (Numbers vs Strings vs Booleans). Do not omit or add extra keys.
 
-    RETURN ONLY JSON:
     {{
-      "financial_summary": "Short executive summary of profit outlook",
-      "roi_analysis": {{
-        "expected_yield_kg_per_acre": 0,
-        "estimated_market_price_per_kg": 0,
-        "input_costs_usd": 0,
-        "projected_profit_usd": 0,
-        "roi_percentage": 0
+      "financial_analysis": {{
+        "action_plan": "String recommending specific business/action plan",
+        "roi_analysis": {{
+          "roi_percentage": 15.91,
+          "input_costs_usd": 330.0,
+          "estimated_market_price_per_kg": 0.3,
+          "expected_yield_kg_per_acre": 1275.0,
+          "projected_profit_usd": 52.5
+        }},
+        "market_forecast": "String detailing market outlook (e.g., Neutral to Slightly Bearish)",
+        "efficiency_score": 68,
+        "financial_summary": "String explaining the financial situation and ROI implications",
+        "cost_saving_opportunities": [
+          "String opportunity 1",
+          "String opportunity 2"
+        ]
       }},
-      "efficiency_score": 0, 
-      "cost_saving_opportunities": [
-        "example suggestion"
-      ],
-      "market_forecast": "Bullish/Bearish",
-      "action_plan": "Specific financial move to make today"
+      "future_pred_output": {{
+        "weather_impact": {{
+          "risk": "String detailing the primary risks based on temperature and humidity",
+          "temperature_effect": "String detailing how current temp affects the crop",
+          "rainfall_effect": "String detailing how humidity/rain affects the crop"
+        }},
+        "summary": "String providing an overall crop viability summary based on the conditions",
+        "warnings":[
+          "String warning 1",
+          "String warning 2"
+        ],
+        "crop_analysis": {{
+          "confidence_score": 75,
+          "recommended_crops":[
+            "sugarcane",
+            "rice",
+            "String alternate crop"
+          ],
+          "non_recommended_crops":[
+            "wheat",
+            "String crop to avoid"
+          ],
+          "is_suitable_for_farming": true
+        }},
+        "actions": [
+          "String action 1",
+          "String action 2"
+        ]
+      }}
     }}
     """
 
     try:
-        response = model.generate_content(prompt)
-
-        # 🔥 CLEAN GEMINI RESPONSE
-        clean_text = re.sub(r"```json\n?|```", "", response.text).strip()
-
-        try:
-            return json.loads(clean_text)
-        except json.JSONDecodeError:
-            print("⚠️ Gemini returned invalid JSON:")
-            print(response.text)
-            return None
+        # Enforcing JSON format at the model level prevents text/markdown wrap
+        response = model.generate_content(
+            prompt,
+            generation_config={"response_mime_type": "application/json"}
+        )
+        return json.loads(response.text)
 
     except Exception as e:
-        print(f"❌ Financial Engine Error: {e}")
+        print(f"❌ Gemini Generation Error: {e}")
         return None
 
 # ------------------ LISTENER ------------------
@@ -107,31 +132,42 @@ def listen_to_nasa_for_roi():
             if not doc.exists:
                 continue
 
-            print("\n💰 [FINANCIAL TRIGGER] New NASA Data affecting Market Value...")
+            print("\n💰 [TRIGGER] New NASA Data affecting Market Value & Crop Viability...")
 
             nasa_data = doc.to_dict()
 
-            # Get Farm Profile
-            farm_ref = db.collection('hackathon').document('PCCE2026') \
-                         .collection('future_pred').document(f"{em}_input").get()
+            # Get Farm Profile Input
+            farm_input_ref = db.collection('hackathon').document('PCCE2026') \
+                         .collection('future_pred').document(f"{em}_input")
+            farm_ref_doc = farm_input_ref.get()
+            farm_profile = farm_ref_doc.to_dict() if farm_ref_doc.exists else {}
 
-            farm_profile = farm_ref.to_dict() if farm_ref.exists else {}
+            # Run combined AI Analysis
+            result = run_financial_and_crop_optimizer(nasa_data, farm_profile)
 
-            # Run ROI Analysis
-            analysis = run_financial_optimizer(nasa_data, farm_profile)
-
-            if analysis:
+            if result:
                 try:
+                    # 1. Write to Financial Forecasting (Matching exact schema)
+                    financial_payload = {
+                        "nasa_trigger_id": doc.id,
+                        "timestamp": datetime.now().isoformat(),
+                        "analysis": result["financial_analysis"]
+                    }
                     db.collection('hackathon').document('PCCE2026') \
                         .collection('financial_forecasting').document(f"{em}_latest") \
-                        .set({
-                            "timestamp": datetime.now().isoformat(),
-                            "analysis": analysis,
-                            "nasa_trigger_id": doc.id
-                        })
+                        .set(financial_payload)
 
-                    print(f"✅ ROI Updated: {analysis['roi_analysis']['roi_percentage']}%")
-                    print(f"💡 Action: {analysis['action_plan']}")
+                    # 2. Write to Future Pred Output (Matching exact schema)
+                   
+                   
+
+                    # 3. Mark input document as processed (Optional but seen in your DB tree)
+                    if farm_ref_doc.exists:
+                        farm_input_ref.update({"processed": True})
+
+                    print(f"✅ Operations Success:")
+                    print(f"   💰 ROI Updated: {result['financial_analysis']['roi_analysis']['roi_percentage']}%")
+                    print(f"   🌾 Crop Confidence Score: {result['future_pred_output']['crop_analysis']['confidence_score']}/100")
 
                 except Exception as e:
                     print(f"❌ Firestore Write Error: {e}")
@@ -141,7 +177,7 @@ def listen_to_nasa_for_roi():
 # ------------------ MAIN ------------------
 
 if __name__ == "__main__":
-    print("💎 ROI & Profit Forecasting Engine Online...")
+    print("💎 Master ROI & Crop Forecasting Engine Online...")
     listen_to_nasa_for_roi()
 
     try:

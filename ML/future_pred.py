@@ -8,7 +8,11 @@ import json
 import re
 from datetime import datetime
 
-# ------------------ SETUP ------------------
+#crop input wise
+# User submits crop input
+# Listener triggers
+# It fetches current NASA data (snapshot-in-time)
+# Runs Gemini
 
 cred = credentials.Certificate("../firebase/serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
@@ -23,7 +27,7 @@ if not em:
 print(f"📧 Using email: {em}")
 
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-2.5-flash")
+model = genai.GenerativeModel("gemini-3-flash-preview")
 
 
 # ------------------ CLEAN FIRESTORE DATA ------------------

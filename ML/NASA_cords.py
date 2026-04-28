@@ -7,13 +7,13 @@ import traceback
 import json
 import re
 import time
-
+import os
 # 🔑 Replace with your Gemini API key
 GEMINI_API_KEY = "AQ.Ab8RN6K5eKwbONu4z7NmuziiHIGXPGljDiycwOfpPImVHjI_wA"
 import traceback
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-2.5-flash")
+model = genai.GenerativeModel("gemini-3-flash-preview")
 
 cred = credentials.Certificate("/Users/vedeekaparab/Desktop/GDG-DroneML/firebase/serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
@@ -172,7 +172,7 @@ Analyze for {crop}.
 
 from dotenv import load_dotenv
 load_dotenv()
-em=os.environ.get("email")
+em = os.environ.get("email")
 # ================== FIREBASE ==================
 def store_to_firebase(env_data, ai_data, email):
     doc_ref = db.collection("hackathon") \
