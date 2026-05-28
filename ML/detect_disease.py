@@ -48,7 +48,7 @@ class Config:
     FIREBASE_BASE_COLLECTION_PATH: str = "hackathon" # Base path for Firestore collections
 
     # Gemini API Configuration
-    GEMINI_API_KEY = "AQ.Ab8RN6K5eKwbONu4z7NmuziiHIGXPGljDiycwOfpPImVHjI_wA" # Recommended: set as environment variable
+    GEMINI_API_KEY = "key" # Recommended: set as environment variable
 
     def __post_init__(self):
         if self.CLASS_NAMES is None:
