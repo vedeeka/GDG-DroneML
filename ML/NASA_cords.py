@@ -8,8 +8,8 @@ import json
 import re
 import time
 import os
-# 🔑 Replace with your Gemini API key
-GEMINI_API_KEY = "AQ.Ab8RN6K5eKwbONu4z7NmuziiHIGXPGljDiycwOfpPImVHjI_wA"
+
+GEMINI_API_KEY = "key"
 import traceback
 
 genai.configure(api_key=GEMINI_API_KEY)
