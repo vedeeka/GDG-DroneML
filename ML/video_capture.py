@@ -13,17 +13,17 @@ PREDICT_API = "http://127.0.0.1:8080/predict"
 
 # 🔐 Cloudinary credentials (get from dashboard)
 cloudinary.config(
-    cloud_name="dqmwnci1k",
-    api_key="531163372165284",
-    api_secret="_WSbNtv9J_O0CMtytnIHxeIQL4s"
+    cloud_name="",
+    api_key="",
+    api_secret=""
 )
 from firebase_admin import credentials, firestore
 
 # 🔐 Cloudinary credentials (get from dashboard)
 cloudinary.config(
-    cloud_name="dqmwnci1k",
-    api_key="531163372165284",
-    api_secret="_WSbNtv9J_O0CMtytnIHxeIQL4s"
+    cloud_name="",
+    api_key="",
+    api_secret=""
 )
 
 
