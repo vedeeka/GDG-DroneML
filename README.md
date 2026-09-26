@@ -482,11 +482,3 @@ The inference API (`detect_disease.py`) automatically loads all `best_model`
 files via glob pattern for ensemble inference.
 
 ---
-
-## 🏆 Built For
-
-**GDG PCCE 2026 Hackathon** — _AI for Agriculture Track_
-
-Combining **Edge AI** (drone camera + local CNN inference) · **Satellite Data**
-(NASA POWER API) · **Generative AI** (Google Gemini Flash) · **Cloud
-Infrastructure** (Firebase Firestore + Cloudinary)
